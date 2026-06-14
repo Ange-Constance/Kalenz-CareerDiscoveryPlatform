@@ -1,6 +1,127 @@
 # Kalenz-CareerDiscoveryPlatform
 
-Kalenz is my final year project at ALU, which is a career discovery platform for young alumni's in tech field that guides them to real career discovery and opportunities.
+## Quick Links
+
+| Resource | Link |
+|----------|------|
+| **GitHub Repository** | [github.com/Ange-Constance/Kalenz-CareerDiscoveryPlatform](https://github.com/Ange-Constance/Kalenz-CareerDiscoveryPlatform) |
+| **Figma Designs** | [KareerLenz Figma Mockups](https://www.figma.com/design/5zh8BMM8EJrjMFZkrFb6m9/KareerLenz?node-id=0-1&p=f&t=vdmkUyDzJdDBzmJh-0) |
+| **Demo Video** | [Project Demo](https://www.bugufi.link/XXDSBd) |
+
+---
+
+## Description
+
+**KarrerLenz** (Kalenz) is a final-year capstone project at ALU — an AI-powered career discovery platform for Rwandan tech graduates. It reads evidence from CVs and other inputs, predicts career matches across five tech paths, and delivers personalized roadmaps and an AI career assistant.
+
+**Goal:** Help tech graduates discover their real career path based on evidence (GitHub, certificates, CVs) and provide concrete, personalized roadmaps.
+
+---
+
+## Repository
+
+**GitHub:** [https://github.com/Ange-Constance/Kalenz-CareerDiscoveryPlatform](https://github.com/Ange-Constance/Kalenz-CareerDiscoveryPlatform)
+
+```bash
+git clone https://github.com/Ange-Constance/Kalenz-CareerDiscoveryPlatform.git
+cd Kalenz-CareerDiscoveryPlatform
+```
+
+---
+
+## How to Set Up the Environment and the Project
+
+### Prerequisites
+
+- **Node.js** 18+
+- **Python** 3.10+
+- **PostgreSQL** 15+ (or Docker)
+- Optional: **Ollama** (local LLM for chat) and **GROQ_API_KEY** (cloud fallback)
+
+### Architecture
+
+| Service | Stack | Port |
+|---------|-------|------|
+| Frontend | React + Vite + Tailwind | 5173 |
+| Backend | Node.js + Express + PostgreSQL | 3000 |
+| ML Service | Python Flask + scikit-learn | 5000 |
+| Database | PostgreSQL | 5432 |
+
+### Option A — Automated setup (recommended)
+
+```bash
+./scripts/setup.sh
+```
+
+Then start each service in a separate terminal:
+
+```bash
+# Terminal 1 — ML service
+cd ml-service && source .venv/bin/activate && python app.py
+
+# Terminal 2 — Backend
+cd backend && npm run dev
+
+# Terminal 3 — Frontend
+cd frontend && npm run dev
+```
+
+Open **http://localhost:5173**
+
+### Option B — Docker Compose
+
+```bash
+cp .env.example .env   # edit secrets as needed
+docker compose up --build
+```
+
+### Environment variables
+
+Copy the example env files and adjust as needed:
+
+```bash
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+```
+
+Key variables: `DATABASE_URL`, `JWT_SECRET`, `ML_SERVICE_URL`, `VITE_API_URL`, `GROQ_API_KEY` (optional).
+
+### User flow
+
+Sign up → Upload CV (`.pdf` / `.docx`) → View results → Explore roadmap → Chat with career assistant
+
+---
+
+## Designs
+
+| Asset | Link |
+|-------|------|
+| **Figma mockups** | [KareerLenz on Figma](https://www.figma.com/design/5zh8BMM8EJrjMFZkrFb6m9/KareerLenz?node-id=0-1&p=f&t=vdmkUyDzJdDBzmJh-0) |
+| **Demo video** | [Project walkthrough](https://www.bugufi.link/XXDSBd) |
+| **App screenshots** | See demo video and Figma mockups; add screenshots to `docs/screenshots/` as the UI evolves |
+| **System architecture** | See [Product Architecture](#2-product-architecture) below |
+
+---
+
+## Deployment Plan
+
+| Component | Target | Notes |
+|-----------|--------|-------|
+| **Frontend** | Vercel / Netlify | Static React build; set `VITE_API_URL` to production API |
+| **Backend API** | Railway / Render | Node.js + PostgreSQL; expose port 3000 |
+| **ML Service** | Railway / Render / Docker | Flask app on port 5000; bundle trained model (`ml-service/models/`) |
+| **Database** | Supabase / Railway PostgreSQL | Run `backend/src/db/migrate.js` on deploy |
+| **Full stack (dev/staging)** | Docker Compose | `docker compose up` — Postgres, ML, backend, frontend |
+
+**Production checklist**
+
+1. Set strong `JWT_SECRET` and production `DATABASE_URL`
+2. Configure `ML_SERVICE_URL` and `FRONTEND_URL` on the backend
+3. Set `VITE_API_URL` on the frontend build to the deployed API URL
+4. Optional: `GROQ_API_KEY` for chat when Ollama is unavailable
+5. Run database migrations before first deploy
+
+---
 
 # KarrerLenz - Complete Product Development Prompt
 
