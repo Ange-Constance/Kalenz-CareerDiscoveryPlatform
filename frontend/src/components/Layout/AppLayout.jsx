@@ -15,7 +15,7 @@ export default function AppLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-klenz-black font-sans">
-      <header className="border-b border-klenz-border bg-klenz-surface/80 backdrop-blur sticky top-0 z-40">
+      <header className="border-b border-klenz-border bg-klenz-card/90 backdrop-blur sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <Logo to="/" />
           <nav className="hidden sm:flex items-center gap-1">

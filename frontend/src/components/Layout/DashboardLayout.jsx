@@ -1,87 +1,91 @@
-import { useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import Logo from '../common/Logo';
-import { UploadIcon, ChevronRight } from '../common/Icons';
-import ChatSidebar from '../Chat/ChatSidebar';
+import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import {
+  CareersIcon,
+  ChatIcon,
+  ChevronRight,
+  ProfileIcon,
+  RoadmapIcon,
+  UploadIcon,
+} from "../common/Icons";
+import Logo from "../common/Logo";
 
 const navItems = [
-  { path: '/dashboard/upload', label: 'Upload Files' },
-  { path: '/dashboard/careers', label: 'Careers' },
-  { path: '/dashboard/profile', label: 'Profile' },
-  { path: '/dashboard/roadmap', label: 'Roadmap' },
+  { path: "/dashboard/upload", label: "Upload Files", Icon: UploadIcon },
+  { path: "/dashboard/careers", label: "Careers", Icon: CareersIcon },
+  { path: "/dashboard/profile", label: "Profile", Icon: ProfileIcon },
+  { path: "/dashboard/roadmap", label: "Roadmap", Icon: RoadmapIcon },
+  { path: "/dashboard/chat", label: "Career Assistant", Icon: ChatIcon },
 ];
+
+function SidebarNavItem({ path, label, Icon }) {
+  return (
+    <NavLink
+      to={path}
+      end
+      className={({ isActive }) =>
+        [
+          "flex items-center gap-3 px-4 py-3 rounded-button border transition-colors",
+          "outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0",
+          "[-webkit-tap-highlight-color:transparent]",
+          isActive
+            ? "bg-klenz-elevated border-klenz-border text-white active:bg-klenz-elevated"
+            : "border-transparent text-klenz-muted hover:border-klenz-border/40 hover:text-white hover:bg-klenz-elevated/60 active:bg-klenz-elevated/60",
+        ].join(" ")
+      }
+    >
+      {({ isActive }) => (
+        <>
+          <Icon active={isActive} className="w-5 h-5 shrink-0" />
+          <span className="text-sm font-normal flex-1 truncate">{label}</span>
+          <ChevronRight
+            aria-hidden
+            className={`w-4 h-4 shrink-0 text-klenz-muted transition-opacity duration-150 ${
+              isActive ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        </>
+      )}
+    </NavLink>
+  );
+}
 
 export default function DashboardLayout() {
   const { logout } = useAuth();
-  const [chatOpen, setChatOpen] = useState(false);
+  const location = useLocation();
+  const isChatRoute = location.pathname.includes("/dashboard/chat");
 
   return (
-    <div className="min-h-screen bg-klenz-black p-4 md:p-6">
-      {/* Top bar */}
-      <header className="panel-elevated px-6 py-4 mb-4 flex items-center justify-between">
+    <div className="h-screen overflow-hidden bg-klenz-black px-8 py-4 md:px-10 md:py-5 lg:px-12 lg:py-6 xl:px-16 flex flex-col gap-4">
+      {/* Top bar — fixed, non-scrollable */}
+      <header className="panel-elevated shrink-0 px-10 py-3.5 flex items-center justify-between">
         <Logo to="/dashboard/upload" />
         <button onClick={logout} className="btn-ghost text-sm py-2 px-5">
           Logout
         </button>
       </header>
 
-      <div className="flex flex-col lg:flex-row gap-4">
-        {/* Sidebar */}
-        <aside className="panel w-full lg:w-64 shrink-0 p-3">
+      <div className="flex flex-1 min-h-0 gap-4 flex-col lg:flex-row">
+        {/* Sidebar — fixed, non-scrollable */}
+        <aside className="panel shrink-0 w-full lg:w-64 lg:overflow-hidden p-2.5">
           <nav className="space-y-1">
-            {navItems.map(({ path, label }) => (
-              <NavLink
-                key={path}
-                to={path}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group ${
-                    isActive
-                      ? 'bg-klenz-elevated border border-klenz-border text-white'
-                      : 'text-klenz-muted hover:text-white hover:bg-klenz-elevated/50'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <UploadIcon active={isActive} className="w-5 h-5 shrink-0" />
-                    <span className="text-sm font-medium flex-1">{label}</span>
-                    {isActive && <ChevronRight className="w-4 h-4 text-klenz-muted" />}
-                  </>
-                )}
-              </NavLink>
+            {navItems.map((item) => (
+              <SidebarNavItem key={item.path} {...item} />
             ))}
           </nav>
         </aside>
 
-        {/* Main content */}
-        <main className="panel flex-1 p-6 md:p-8 min-h-[calc(100vh-120px)]">
+        {/* Main content — only scrollable region */}
+        <main
+          className={`panel flex-1 min-h-0 px-10 py-6 md:px-12 md:py-8 flex flex-col ${
+            isChatRoute
+              ? "overflow-hidden"
+              : "overflow-y-auto overscroll-contain"
+          }`}
+        >
           <Outlet />
         </main>
       </div>
-
-      {/* Floating chat */}
-      <button
-        onClick={() => setChatOpen(!chatOpen)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-orange-gradient rounded-full shadow-lg shadow-klenz-orange/30 flex items-center justify-center text-2xl hover:scale-105 transition-transform z-40"
-        aria-label="Toggle chat"
-      >
-        💬
-      </button>
-
-      {chatOpen && (
-        <div className="fixed bottom-24 right-6 w-80 sm:w-96 h-[480px] panel z-50 flex flex-col shadow-2xl shadow-black/50">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-klenz-border">
-            <span className="font-semibold text-sm">Career Assistant</span>
-            <button onClick={() => setChatOpen(false)} className="text-klenz-muted hover:text-white text-lg">
-              ×
-            </button>
-          </div>
-          <div className="flex-1 overflow-hidden">
-            <ChatSidebar />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

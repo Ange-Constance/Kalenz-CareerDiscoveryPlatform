@@ -69,8 +69,8 @@ export default function Upload() {
   return (
     <AppLayout>
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Upload Your CV</h1>
-        <p className="text-klenz-muted text-sm mb-8">
+        <h1 className="page-title text-white">Upload Your CV</h1>
+        <p className="page-subtitle mb-8">
           Upload a PDF or Word document (.docx). Max 5MB. We analyze skills and discard the file.
         </p>
 
@@ -85,14 +85,14 @@ export default function Upload() {
           onDragLeave={() => setDragOver(false)}
           onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFile(e.dataTransfer.files[0]); }}
           onClick={() => inputRef.current?.click()}
-          className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all ${
-            dragOver ? 'border-klenz-purple bg-klenz-purple/5' : 'border-klenz-border hover:border-klenz-purple/50 bg-klenz-card'
+          className={`border-2 border-dashed rounded-panel p-12 text-center cursor-pointer transition-all ${
+            dragOver ? 'border-klenz-orange bg-klenz-orange/5' : 'border-klenz-border hover:border-klenz-muted/60 bg-klenz-card'
           }`}
         >
           <div className="text-4xl mb-4">📄</div>
           <p className="text-white font-medium mb-1">Drag & drop your CV here</p>
           <p className="text-klenz-muted text-sm mb-4">or click to browse — .pdf or .docx only</p>
-          <button type="button" className="btn-purple text-sm" onClick={(e) => { e.stopPropagation(); inputRef.current?.click(); }}>
+          <button type="button" className="btn-dark text-sm" onClick={(e) => { e.stopPropagation(); inputRef.current?.click(); }}>
             Select File
           </button>
           <input
@@ -118,7 +118,7 @@ export default function Upload() {
           <button
             onClick={handleUpload}
             disabled={loading || !file}
-            className="btn-purple flex items-center gap-2 disabled:opacity-50 min-w-[160px] justify-center"
+            className="btn-orange flex items-center gap-2 disabled:opacity-50 min-w-[160px] justify-center"
           >
             {loading ? <LoadingSpinner size="sm" /> : null}
             {loading ? STEPS[stepIndex] : 'Analyze CV'}

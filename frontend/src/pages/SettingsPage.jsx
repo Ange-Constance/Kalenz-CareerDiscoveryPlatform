@@ -5,8 +5,8 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold mb-1">Settings</h1>
-      <p className="text-sm text-klenz-muted mb-8">Manage your account and preferences</p>
+      <h1 className="page-title mb-1.5">Settings</h1>
+      <p className="page-subtitle mb-8">Manage your account and preferences</p>
 
       <div className="space-y-4">
         <div className="panel-elevated p-6">

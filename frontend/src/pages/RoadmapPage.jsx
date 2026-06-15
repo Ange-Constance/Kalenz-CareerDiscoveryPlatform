@@ -67,8 +67,8 @@ export default function RoadmapPage() {
   if (!roadmap) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <h1 className="text-2xl font-bold mb-2">Roadmap</h1>
-        <p className="text-klenz-muted text-sm">Select a career from the Careers page first.</p>
+        <h1 className="page-title mb-2">Roadmap</h1>
+        <p className="page-subtitle">Select a career from the Careers page first.</p>
       </div>
     );
   }
@@ -79,8 +79,8 @@ export default function RoadmapPage() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold mb-1">Roadmap — {careerName}</h1>
-          <p className="text-sm text-klenz-muted">Your 8-week path to bridge the gap</p>
+          <h1 className="page-title mb-1.5">Roadmap — {careerName}</h1>
+          <p className="page-subtitle">Your 8-week path to bridge the gap</p>
         </div>
         <button onClick={handleDownload} className="btn-dark text-sm self-start">
           Download Roadmap

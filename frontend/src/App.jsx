@@ -1,20 +1,21 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
-import DashboardPage from './pages/DashboardPage';
-import UploadPage from './pages/UploadPage';
-import ProfilePage from './pages/ProfilePage';
-import CareersPage from './pages/CareersPage';
-import RoadmapPage from './pages/RoadmapPage';
-import SettingsPage from './pages/SettingsPage';
-import Upload from './pages/Upload';
-import Results from './pages/Results';
-import Roadmap from './pages/Roadmap';
-import Chat from './pages/Chat';
-import DashboardLayout from './components/Layout/DashboardLayout';
-import LoadingSpinner from './components/common/LoadingSpinner';
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import DashboardLayout from "./components/Layout/DashboardLayout";
+import LoadingSpinner from "./components/common/LoadingSpinner";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import CareersPage from "./pages/CareersPage";
+import Chat from "./pages/Chat";
+import ChatPage from "./pages/ChatPage";
+import DashboardPage from "./pages/DashboardPage";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import ProfilePage from "./pages/ProfilePage";
+import Results from "./pages/Results";
+import Roadmap from "./pages/Roadmap";
+import RoadmapPage from "./pages/RoadmapPage";
+import SettingsPage from "./pages/SettingsPage";
+import SignupPage from "./pages/SignupPage";
+import Upload from "./pages/Upload";
+import UploadPage from "./pages/UploadPage";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -39,10 +40,38 @@ function AppRoutes() {
       <Route path="/signup" element={<SignupPage />} />
 
       {/* New CV analysis flow */}
-      <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
-      <Route path="/results" element={<ProtectedRoute><Results /></ProtectedRoute>} />
-      <Route path="/roadmap" element={<ProtectedRoute><Roadmap /></ProtectedRoute>} />
-      <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+      <Route
+        path="/upload"
+        element={
+          <ProtectedRoute>
+            <Upload />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/results"
+        element={
+          <ProtectedRoute>
+            <Results />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/roadmap"
+        element={
+          <ProtectedRoute>
+            <Roadmap />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/chat"
+        element={
+          <ProtectedRoute>
+            <Chat />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Legacy dashboard — kept intact */}
       <Route
@@ -58,6 +87,7 @@ function AppRoutes() {
         <Route path="profile" element={<ProfilePage />} />
         <Route path="careers" element={<CareersPage />} />
         <Route path="roadmap" element={<RoadmapPage />} />
+        <Route path="chat" element={<ChatPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>
 
