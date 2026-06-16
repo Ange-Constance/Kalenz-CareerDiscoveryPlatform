@@ -24,9 +24,9 @@ if [ ! -d "ml-service/.venv" ]; then
   (cd ml-service && python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt)
 fi
 
-if [ ! -f "ml-service/models/logistic_regression.pkl" ]; then
+if [ ! -f "ml-service/models/karrierlenz_model.pkl" ]; then
   echo "Training ML models..."
-  (cd ml-service && source .venv/bin/activate && python run_training.py)
+  (cd ml-service && source .venv/bin/activate && python train_model.py 2>/dev/null || python run_training.py)
 fi
 
 # 4. Env files

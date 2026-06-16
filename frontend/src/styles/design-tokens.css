@@ -1,0 +1,44 @@
+:root {
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* Colors */
+  --color-bg: #0a0a0f;
+  --color-surface: #111118;
+  --color-surface-raised: #1a1a24;
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-border-orange: rgba(255, 140, 0, 0.25);
+  --color-orange: #ff8c00;
+  --color-orange-hover: #ffa033;
+  --color-orange-dark: #ff4500;
+  --color-teal: #1d9e75;
+  --color-teal-hover: #22b585;
+  --color-text: #ffffff;
+  --color-text-muted: #a0a0b8;
+  --color-text-subtle: #6b6b8a;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-success: #1d9e75;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+  --shadow-orange: 0 4px 24px rgba(255, 140, 0, 0.25);
+  --shadow-teal: 0 4px 24px rgba(29, 158, 117, 0.2);
+}

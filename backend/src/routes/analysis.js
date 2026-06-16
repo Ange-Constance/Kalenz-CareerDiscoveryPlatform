@@ -4,9 +4,8 @@ const fs = require('fs');
 const path = require('path');
 const db = require('../config/db');
 const { authenticateToken } = require('../middleware/auth');
-const { runAnalysis } = require('../services/mlService');
+const { chatLimiter } = require('../middleware/rateLimiter');
 const { analyzeCV, chatWithML } = require('../services/ml');
-const { generateNarrative } = require('../services/ollamaService');
 
 const router = express.Router();
 
@@ -24,18 +23,27 @@ const upload = multer({
   },
 });
 
-const CAREER_DESCRIPTIONS = {
-  'UX Research': 'Design user research studies, analyze feedback, and translate insights into product improvements.',
-  'Health Data': 'Analyze healthcare datasets, build dashboards, and support clinical decision-making with data.',
-  'Policy': 'Research tech policy, draft recommendations, and evaluate regulatory impact on digital ecosystems.',
-  'Backend': 'Build scalable APIs, manage databases, and architect server-side systems for web applications.',
-  'DevOps': 'Automate deployments, manage cloud infrastructure, and ensure reliable CI/CD pipelines.',
-};
+function formatAnalysisRow(row) {
+  if (!row) return null;
+  const scores = row.confidence_scores || {};
+  const predicted = row.predicted_career;
+  const topScore = predicted ? scores[predicted] : null;
+
+  return {
+    id: row.id,
+    predicted_career: predicted,
+    confidence_scores: scores,
+    confidence_pct: topScore != null ? Math.round(topScore * 1000) / 10 : null,
+    narrative: row.narrative,
+    cv_filename: row.cv_filename,
+    created_at: row.created_at,
+  };
+}
 
 /**
  * POST /api/analysis/upload — Upload CV and run ML analysis
  */
-router.post('/upload', authenticateToken, upload.single('file'), async (req, res, next) => {
+router.post('/upload', authenticateToken, upload.single('file'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ success: false, error: 'CV file is required (.pdf or .docx, max 5MB)' });
   }
@@ -57,26 +65,19 @@ router.post('/upload', authenticateToken, upload.single('file'), async (req, res
       ]
     );
 
-    const row = result.rows[0];
-
-    res.json({
-      success: true,
-      data: {
-        id: row.id,
-        predicted_career: row.predicted_career,
-        confidence_scores: row.confidence_scores,
-        narrative: row.narrative,
-        cv_filename: row.cv_filename,
-        created_at: row.created_at,
-      },
+    const data = formatAnalysisRow({
+      ...result.rows[0],
+      confidence_scores: mlResult.confidence_scores,
     });
+    data.confidence_pct = mlResult.confidence_pct ?? data.confidence_pct;
+
+    res.json({ success: true, data });
   } catch (err) {
     res.status(err.message.includes('unavailable') ? 503 : 400).json({
       success: false,
       error: err.message,
     });
   } finally {
-    // Delete temp file — do not store CV permanently
     if (req.file?.path && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
@@ -94,16 +95,39 @@ router.get('/history', authenticateToken, async (req, res, next) => {
       [req.user.id]
     );
 
-    res.json({ success: true, data: result.rows });
+    res.json({
+      success: true,
+      data: result.rows.map((row) => formatAnalysisRow(row)),
+    });
   } catch (err) {
     next(err);
   }
 });
 
 /**
- * POST /api/analysis/chat — Career-aware chat via ML service
+ * GET /api/analysis/latest — Most recent CV analysis for logged-in user
  */
-router.post('/chat', authenticateToken, async (req, res, next) => {
+router.get('/latest', authenticateToken, async (req, res, next) => {
+  try {
+    const result = await db.query(
+      `SELECT id, predicted_career, confidence_scores, narrative, cv_filename, created_at
+       FROM career_analyses WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
+      [req.user.id]
+    );
+
+    res.json({
+      success: true,
+      data: result.rows.length ? formatAnalysisRow(result.rows[0]) : null,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * POST /api/analysis/chat — Career-aware chat via ML service (Ollama → Groq)
+ */
+router.post('/chat', authenticateToken, chatLimiter, async (req, res) => {
   try {
     const { message, career, context } = req.body;
 
@@ -111,7 +135,29 @@ router.post('/chat', authenticateToken, async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Message is required' });
     }
 
-    const mlResult = await chatWithML(message.trim(), career || '', context || '');
+    const trimmed = message.trim();
+    const step = typeof context === 'object' ? context?.step : null;
+
+    await db.query(
+      `INSERT INTO chat_messages (user_id, analysis_id, role, content, context_step)
+       VALUES ($1, NULL, 'user', $2, $3)`,
+      [req.user.id, trimmed, step || 'chat']
+    );
+
+    const contextStr =
+      typeof context === 'string'
+        ? context
+        : context?.text ||
+          (step ? `User is on step: ${step}.` : 'General career guidance for Rwanda tech.');
+
+    const mlResult = await chatWithML(trimmed, career || '', contextStr);
+
+    await db.query(
+      `INSERT INTO chat_messages (user_id, analysis_id, role, content, context_step)
+       VALUES ($1, NULL, 'assistant', $2, $3)`,
+      [req.user.id, mlResult.response, step || 'chat']
+    );
+
     res.json({ success: true, data: { response: mlResult.response } });
   } catch (err) {
     res.status(503).json({ success: false, error: err.message });
@@ -119,74 +165,20 @@ router.post('/chat', authenticateToken, async (req, res, next) => {
 });
 
 /**
- * @swagger
- * /analysis/run:
- *   post:
- *     summary: Run ML analysis on user evidence (legacy)
- *     tags: [Analysis]
+ * POST /api/analysis/run — Retired legacy endpoint
  */
-router.post('/run', authenticateToken, async (req, res, next) => {
-  try {
-    const evidenceResult = await db.query(
-      'SELECT evidence_type, raw_text FROM evidence WHERE user_id = $1',
-      [req.user.id]
-    );
-
-    let githubText = '';
-    let cvText = '';
-    let certText = '';
-
-    for (const row of evidenceResult.rows) {
-      if (row.evidence_type === 'github') githubText += row.raw_text + ' ';
-      else if (row.evidence_type === 'cv') cvText += row.raw_text + ' ';
-      else if (row.evidence_type === 'certificate') certText += row.raw_text + ' ';
-    }
-
-    if (!githubText && !cvText && !certText) {
-      return res.status(400).json({ success: false, error: 'No evidence uploaded. Please upload GitHub, CV, or certificate first.' });
-    }
-
-    const mlResult = await runAnalysis(githubText, cvText, certText);
-
-    const careerMatches = mlResult.careers.map((c) => ({
-      career: c.name,
-      probability: c.probability,
-      description: CAREER_DESCRIPTIONS[c.name] || '',
-    }));
-
-    const topCareer = careerMatches[0]?.career || 'Backend';
-    const narrative = await generateNarrative(topCareer, mlResult.competencies);
-
-    const result = await db.query(
-      `INSERT INTO analyses (user_id, competencies, narrative, top_career, career_matches)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [
-        req.user.id,
-        JSON.stringify(mlResult.competencies),
-        narrative,
-        topCareer,
-        JSON.stringify(careerMatches),
-      ]
-    );
-
-    const analysis = result.rows[0];
-
-    res.json({
-      success: true,
-      data: {
-        id: analysis.id,
-        competencies: mlResult.competencies,
-        narrative: analysis.narrative,
-        career_matches: careerMatches,
-        created_at: analysis.created_at,
-      },
-    });
-  } catch (err) {
-    next(err);
-  }
+router.post('/run', authenticateToken, (req, res) => {
+  res.status(410).json({
+    success: false,
+    error: 'This endpoint is retired. Use POST /api/analysis/upload instead.',
+  });
 });
 
 router.get('/:analysisId', authenticateToken, async (req, res, next) => {
+  if (req.params.analysisId === 'latest') {
+    return res.status(404).json({ success: false, error: 'Analysis not found' });
+  }
+
   try {
     const result = await db.query(
       'SELECT * FROM analyses WHERE id = $1 AND user_id = $2',

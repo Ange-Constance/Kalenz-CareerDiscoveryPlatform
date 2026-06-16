@@ -3,71 +3,131 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Layout/Navbar';
 import Footer from '../components/Layout/Footer';
 import { ChevronDown } from '../components/common/Icons';
-import {
-  CareerPathHero,
-  EvidenceSources,
-  CompetencyRadar,
-  CareerMatchBars,
-  RoadmapTimeline,
-  MiniCareerDiscovery,
-  HeroBackground,
-} from '../components/landing/Illustrations3D';
+import { CAREER_DESCRIPTIONS, CAREER_NAMES } from '../data/careers';
+import { CAREER_ICONS } from '../data/roadmapData';
 
-const partners = ['kLab Kigali', 'Andela', 'Google UX', 'ALU Rwanda'];
+const stats = [
+  { label: '89% Model Accuracy' },
+  { label: '5 Career Paths' },
+  { label: 'AI-Powered Insights' },
+];
+
+const steps = [
+  {
+    num: '1',
+    title: 'Upload CV',
+    description: 'Drop your PDF or Word CV — we extract skills and discard the file.',
+    Icon: UploadStepIcon,
+  },
+  {
+    num: '2',
+    title: 'Get AI Analysis',
+    description: 'Our ML model ranks you across 5 tech career paths with confidence scores.',
+    Icon: AnalysisStepIcon,
+  },
+  {
+    num: '3',
+    title: 'Explore Your Path',
+    description: 'View your roadmap, career matches, and chat with your AI advisor.',
+    Icon: PathStepIcon,
+  },
+];
 
 const faqItems = [
   {
-    q: 'How does the free trial work?',
-    a: 'Sign up for free, upload your GitHub profile, certificates, or CV, and get a full AI-powered career analysis with matches and a personalized roadmap — no credit card required.',
+    q: 'What careers does KarrerLenz analyze?',
+    a: 'We analyze CVs across 5 tech career paths: Software Development, Data & AI, Cybersecurity & Networking, Product & Project Management, and UI/UX & Digital Design.',
   },
   {
-    q: 'Is my data safe?',
-    a: 'Yes. Uploaded files are processed immediately and deleted. Only extracted competency signals are stored — your raw documents never persist on our servers.',
+    q: 'How accurate is the career prediction?',
+    a: 'Our model achieves 89% accuracy trained on real CV data combined with O*NET occupational profiles.',
   },
   {
-    q: 'How accurate are career matches?',
-    a: 'Our ML model uses TF-IDF and logistic regression trained on real CVs and job postings, achieving 82%+ accuracy across 5 career paths.',
+    q: 'Is my CV data stored?',
+    a: 'Your CV is analyzed and immediately deleted. Only the career insights are saved to your profile.',
   },
   {
-    q: 'What careers does KaLenz support?',
-    a: 'UX Research, Health Data, Policy Analysis, Backend Development, and DevOps — with local opportunities from kLab, Andela, and Google programs.',
+    q: 'Do I need to pay?',
+    a: 'KarrerLenz is completely free for Rwandan tech graduates.',
+  },
+  {
+    q: 'What file formats are supported?',
+    a: 'We support PDF and DOCX (Word) files up to 10MB.',
+  },
+  {
+    q: 'How does the AI chat work?',
+    a: 'After your CV analysis, our AI advisor can answer questions about your career path, skills to learn, and opportunities in Rwanda.',
   },
 ];
 
-const featureCards = [
-  {
-    title: 'Upload Your Evidence',
-    description: 'Connect GitHub, upload certificates or CVs. We extract competency signals from what you have actually built — then discard the files.',
-    Illustration: EvidenceSources,
-    wide: true,
-  },
-  {
-    title: 'Talent Profile & Competencies',
-    description: 'AI scores 6 core competencies and generates a personalized career narrative from your evidence.',
-    Illustration: CompetencyRadar,
-  },
-  {
-    title: 'Ranked Career Matches',
-    description: 'ML ranks 5 career paths — UX Research, Health Data, Policy, Backend, DevOps — with match probabilities.',
-    Illustration: CareerMatchBars,
-  },
-  {
-    title: '8-Week Roadmap',
-    description: 'Bridge the gap from current fit to target with a timeline, milestones, and local Rwanda opportunities.',
-    Illustration: RoadmapTimeline,
-    wide: true,
-  },
-];
+function UploadStepIcon() {
+  return (
+    <svg className="w-8 h-8" viewBox="0 0 32 32" fill="none">
+      <rect x="6" y="8" width="20" height="16" rx="3" stroke="#FF8C00" strokeWidth="1.5" />
+      <path d="M16 20V12M16 12l-3 3M16 12l3 3" stroke="#1D9E75" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function AnalysisStepIcon() {
+  return (
+    <svg className="w-8 h-8" viewBox="0 0 32 32" fill="none">
+      <circle cx="16" cy="16" r="10" stroke="#FF8C00" strokeWidth="1.5" />
+      <path d="M11 18l3 3 7-8" stroke="#1D9E75" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function PathStepIcon() {
+  return (
+    <svg className="w-8 h-8" viewBox="0 0 32 32" fill="none">
+      <path d="M8 24 L16 8 L24 24" stroke="#FF8C00" strokeWidth="1.5" strokeLinejoin="round" />
+      <circle cx="16" cy="8" r="2.5" fill="#1D9E75" />
+      <circle cx="8" cy="24" r="2.5" fill="#FF8C00" />
+      <circle cx="24" cy="24" r="2.5" fill="#FF8C00" />
+    </svg>
+  );
+}
+
+function HeroOrbs() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
+      <div
+        className="absolute w-[480px] h-[480px] rounded-full blur-[100px] opacity-40 animate-gradient-shift"
+        style={{
+          background: 'radial-gradient(circle, rgba(255,140,0,0.35) 0%, transparent 70%)',
+          top: '-10%',
+          right: '5%',
+        }}
+      />
+      <div
+        className="absolute w-[360px] h-[360px] rounded-full blur-[80px] opacity-30 animate-gradient-shift"
+        style={{
+          background: 'radial-gradient(circle, rgba(29,158,117,0.25) 0%, transparent 70%)',
+          bottom: '10%',
+          left: '-5%',
+          animationDelay: '4s',
+        }}
+      />
+      <div className="absolute inset-0 bg-hero-mesh animate-gradient-shift" />
+    </div>
+  );
+}
 
 function FAQItem({ question, answer, isOpen, onToggle }) {
   return (
     <div className="border-b border-klenz-border last:border-0">
       <button
+        type="button"
         onClick={onToggle}
         className="w-full flex items-center justify-between py-5 text-left group"
       >
-        <span className="text-sm font-medium group-hover:text-klenz-orange transition-colors">{question}</span>
-        <ChevronDown className={`w-4 h-4 text-klenz-muted shrink-0 ml-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <span className="text-sm font-medium text-white group-hover:text-klenz-orange transition-colors">
+          {question}
+        </span>
+        <ChevronDown
+          className={`w-4 h-4 text-klenz-muted shrink-0 ml-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+        />
       </button>
       {isOpen && (
         <p className="text-sm text-klenz-muted pb-5 leading-relaxed animate-fade-in">{answer}</p>
@@ -80,83 +140,64 @@ export default function HomePage() {
   const [openFaq, setOpenFaq] = useState(null);
 
   return (
-    <div className="min-h-screen bg-klenz-black overflow-x-hidden">
+    <div className="min-h-screen bg-klenz-black overflow-x-hidden page-enter">
       <Navbar />
 
       {/* Hero */}
-      <section id="home" className="relative min-h-[90vh] flex items-center">
-        <HeroBackground />
-
-        <div className="relative z-10 max-w-6xl mx-auto px-6 py-20 w-full">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="text-center lg:text-left">
-              <span className="badge-orange mb-6 inline-block animate-fade-in">Just Evidence</span>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-[1.1]">
-                <span className="text-gradient-orange">Discover Your</span>
-                <br />
-                <span className="text-white">Real Career Path</span>
-              </h1>
-              <p className="text-klenz-muted text-lg mb-10 max-w-lg mx-auto lg:mx-0">
-                Evidence-based career guidance for Rwandan tech graduates — from GitHub, CVs, and certificates to matched careers and roadmaps.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Link to="/signup" className="btn-orange text-base px-8 text-center">
-                  Try For Free
-                </Link>
-                <Link to="/login" className="btn-ghost text-base px-8 text-center">
-                  Log In
-                </Link>
-              </div>
-
-              <div className="mt-14 pt-8 border-t border-klenz-border/50">
-                <p className="text-xs text-klenz-subtle mb-4 uppercase tracking-widest">Opportunities connected to</p>
-                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6">
-                  {partners.map((name) => (
-                    <span key={name} className="text-sm text-klenz-muted/60 font-medium">{name}</span>
-                  ))}
-                </div>
-              </div>
+      <section id="home" className="relative section-spacing overflow-hidden">
+        <HeroOrbs />
+        <div className="content-container relative z-10">
+          <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
+            <h1 className="text-[2.25rem] sm:text-5xl lg:text-[3.5rem] font-extrabold leading-[1.1] mb-6 text-white">
+              Discover Your Tech Career Path
+            </h1>
+            <p className="text-klenz-muted text-base sm:text-lg mb-10 max-w-[520px] leading-relaxed">
+              AI-powered career discovery built for Rwandan tech graduates — upload your CV,
+              get matched to the right path, and explore your future.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+              <Link to="/signup" className="btn-primary text-center px-8">
+                Get Started Free
+              </Link>
+              <a href="#how-it-works" className="btn-outline text-center px-8">
+                See How It Works
+              </a>
             </div>
+          </div>
 
-            <div className="flex items-center justify-center lg:justify-end mt-8 lg:mt-0">
-              <div className="scale-90 lg:scale-100">
-                <CareerPathHero />
-              </div>
+          {/* Social proof */}
+          <div className="mt-16 text-center">
+            <p className="text-sm text-klenz-subtle mb-6">
+              Built for Rwanda&apos;s next generation of tech professionals
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              {stats.map(({ label }) => (
+                <span key={label} className="badge-purple">
+                  {label}
+                </span>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features — platform workflow */}
-      <section id="features" className="max-w-6xl mx-auto px-6 py-24">
-        <div className="text-center mb-16">
-          <span className="badge-orange mb-4 inline-block">How It Works</span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">From Evidence to Career</h2>
-          <p className="text-klenz-muted text-sm max-w-md mx-auto">
-            Four steps that mirror the KaLenz dashboard — upload, profile, matches, roadmap.
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          {featureCards.filter((f) => f.wide).map(({ title, description, Illustration }) => (
-            <div key={title} className="panel card-glow p-8 md:p-10 grid md:grid-cols-2 gap-8 items-center hover:border-klenz-orange/20 transition-colors">
-              <div>
-                <h3 className="text-xl font-semibold mb-3">{title}</h3>
-                <p className="text-sm text-klenz-muted leading-relaxed">{description}</p>
-              </div>
-              <div className="flex justify-center bg-klenz-elevated/50 rounded-2xl py-10 bg-grid-pattern bg-grid min-h-[260px] items-center">
-                <Illustration />
-              </div>
-            </div>
-          ))}
-
-          <div className="grid md:grid-cols-2 gap-4">
-            {featureCards.filter((f) => !f.wide).map(({ title, description, Illustration }) => (
-              <div key={title} className="panel card-glow p-8 flex flex-col hover:border-klenz-orange/20 transition-colors">
-                <div className="flex justify-center bg-klenz-elevated/50 rounded-2xl py-10 mb-6 bg-grid-pattern bg-grid min-h-[260px] items-center">
-                  <Illustration />
+      {/* How It Works */}
+      <section id="how-it-works" className="section-spacing bg-klenz-surface/50">
+        <div className="content-container">
+          <div className="text-center mb-12 lg:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">How It Works</h2>
+            <p className="text-klenz-muted text-sm max-w-md mx-auto">
+              Three simple steps from CV to career clarity
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+            {steps.map(({ num, title, description, Icon }) => (
+              <div key={title} className="card card-glow text-center p-6 lg:p-8">
+                <div className="text-4xl font-extrabold text-klenz-orange mb-4">{num}</div>
+                <div className="flex justify-center mb-4">
+                  <Icon />
                 </div>
-                <h3 className="font-semibold mb-2">{title}</h3>
+                <h3 className="font-semibold text-lg mb-2">{title}</h3>
                 <p className="text-sm text-klenz-muted leading-relaxed">{description}</p>
               </div>
             ))}
@@ -164,76 +205,90 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* About */}
-      <section id="about" className="max-w-3xl mx-auto px-6 py-20">
-        <h2 className="text-2xl md:text-3xl font-bold text-center mb-2">
-          Why KaLenz For Career Discovery?
-        </h2>
-        <p className="text-klenz-muted text-center mb-10 text-sm">
-          Extract genuine competency signals from what you&apos;ve actually built.
-        </p>
-        <div className="panel px-6">
-          {[
-            { title: 'Evidence Based Matching', content: 'We analyze GitHub repos, certificates, and CVs to extract real competency signals.' },
-            { title: 'Personalized Roadmaps', content: '8-week action plans tailored to your gap analysis with concrete milestones.' },
-            { title: 'Local Opportunities', content: 'Programs from kLab Kigali, Andela, Google UX Certificate, and more.' },
-            { title: 'Privacy First', content: 'Files are processed and deleted immediately. Only signals are stored.' },
-          ].map((item, i) => (
-            <FAQItem
-              key={item.title}
-              question={item.title}
-              answer={item.content}
-              isOpen={openFaq === `about-${i}`}
-              onToggle={() => setOpenFaq(openFaq === `about-${i}` ? null : `about-${i}`)}
-            />
-          ))}
+      {/* Career Paths */}
+      <section id="careers" className="section-spacing">
+        <div className="content-container">
+          <div className="text-center mb-12 lg:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">Career Paths</h2>
+            <p className="text-klenz-muted text-sm max-w-lg mx-auto">
+              Five in-demand tech careers we analyze and match you against
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-4 lg:gap-6">
+            {CAREER_NAMES.map((career, i) => (
+              <div
+                key={career}
+                className={`card career-card-hover p-6 lg:col-span-2 ${
+                  i === 3 ? 'lg:col-start-2' : i === 4 ? 'lg:col-start-4' : ''
+                }`}
+              >
+                <span className="text-3xl mb-4 block">{CAREER_ICONS[career]}</span>
+                <h3 className="font-semibold text-base mb-2">{career}</h3>
+                <p className="text-sm text-klenz-muted leading-relaxed line-clamp-2">
+                  {CAREER_DESCRIPTIONS[career]}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Chat Assistant Preview */}
+      <section id="chat-preview" className="section-spacing bg-klenz-surface/50">
+        <div className="content-container">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            <div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
+                Meet Your AI Career Advisor
+              </h2>
+              <p className="text-klenz-muted text-sm leading-relaxed mb-8 max-w-md">
+                Ask anything about your career path, skills to learn, companies hiring in Rwanda,
+                or how to build your portfolio.
+              </p>
+              <Link to="/signup" className="btn-primary inline-block">
+                Start Chatting
+              </Link>
+            </div>
+            <div className="card card-purple p-5 sm:p-6 space-y-3">
+              <div className="flex justify-start animate-slide-up">
+                <div className="chat-bubble-ai max-w-[90%] px-4 py-3 text-sm leading-relaxed">
+                  Hi! I&apos;ve analyzed your CV. You&apos;re a great fit for Data &amp; AI.
+                  Want to know what skills to learn first?
+                </div>
+              </div>
+              <div className="flex justify-end animate-slide-up" style={{ animationDelay: '0.1s' }}>
+                <div className="chat-bubble-user max-w-[85%] px-4 py-3 text-sm leading-relaxed">
+                  Yes! What should I focus on?
+                </div>
+              </div>
+              <div className="flex justify-start animate-slide-up" style={{ animationDelay: '0.2s' }}>
+                <div className="chat-bubble-ai max-w-[90%] px-4 py-3 text-sm leading-relaxed">
+                  Start with Python and SQL fundamentals, then move to scikit-learn.
+                  Here&apos;s a 3-month roadmap...
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="max-w-6xl mx-auto px-6 py-20">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <h2 className="text-3xl font-bold mb-2">Frequently asked questions</h2>
-            <p className="text-klenz-muted text-sm mb-8">Everything you need to know about KaLenz.</p>
-            <div className="panel px-6">
-              {faqItems.map((item, i) => (
-                <FAQItem
-                  key={item.q}
-                  question={item.q}
-                  answer={item.a}
-                  isOpen={openFaq === `faq-${i}`}
-                  onToggle={() => setOpenFaq(openFaq === `faq-${i}` ? null : `faq-${i}`)}
-                />
-              ))}
-            </div>
+      <section id="faq" className="section-spacing">
+        <div className="content-container max-w-3xl">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2">Frequently Asked Questions</h2>
+            <p className="text-klenz-muted text-sm">Everything you need to know about KarrerLenz</p>
           </div>
-          <div className="hidden lg:flex flex-col items-center justify-center gap-6">
-            <MiniCareerDiscovery />
-            <p className="text-xs text-klenz-muted text-center max-w-[200px]">
-              5 careers ranked by ML from your evidence
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="relative py-32 overflow-hidden">
-        <HeroBackground />
-        <div className="relative z-10 max-w-4xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
-          <div className="hidden md:flex justify-center">
-            <RoadmapTimeline />
-          </div>
-          <div className="text-center md:text-left">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Ready to Find Your Path?
-            </h2>
-            <p className="text-klenz-muted mb-8">
-              Upload your evidence and get matched to the career that fits what you&apos;ve actually built.
-            </p>
-            <Link to="/signup" className="btn-orange text-base px-10 inline-block">
-              Get Started
-            </Link>
+          <div className="card px-6">
+            {faqItems.map((item, i) => (
+              <FAQItem
+                key={item.q}
+                question={item.q}
+                answer={item.a}
+                isOpen={openFaq === i}
+                onToggle={() => setOpenFaq(openFaq === i ? null : i)}
+              />
+            ))}
           </div>
         </div>
       </section>

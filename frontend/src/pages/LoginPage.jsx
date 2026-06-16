@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import Logo from "../components/common/Logo";
+import PasswordInput from "../components/common/PasswordInput";
 import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
@@ -9,8 +10,18 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [fieldError, setFieldError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { user, loading: authLoading, login } = useAuth();
   const navigate = useNavigate();
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-klenz-black flex items-center justify-center page-enter">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (user) return <Navigate to="/upload" replace />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,12 +46,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-klenz-black flex flex-col font-sans">
+    <div className="min-h-screen bg-klenz-black flex flex-col font-sans page-enter">
       <div className="p-6">
         <Logo />
       </div>
       <div className="flex-1 flex items-center justify-center px-4 pb-16">
-        <div className="panel w-full max-w-md p-8">
+        <div className="card w-full max-w-md p-8">
           <h1 className="page-title text-center mb-1">Welcome Back</h1>
           <p className="text-klenz-muted text-center text-sm mb-8">
             Sign in to discover your career path
@@ -54,7 +65,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm text-klenz-muted mb-2">
+              <label className="block text-sm font-medium text-klenz-muted mb-2">
                 Email
               </label>
               <input
@@ -66,14 +77,12 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <label className="block text-sm text-klenz-muted mb-2">
+              <label className="block text-sm font-medium text-klenz-muted mb-2">
                 Password
               </label>
-              <input
-                type="password"
+              <PasswordInput
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="input-dark"
                 required
                 minLength={8}
               />
@@ -81,7 +90,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-orange w-full flex justify-center items-center gap-2"
+              className="btn-primary w-full flex justify-center items-center gap-2"
             >
               {loading && <LoadingSpinner size="sm" />}
               {loading ? "Signing in..." : "Log In"}

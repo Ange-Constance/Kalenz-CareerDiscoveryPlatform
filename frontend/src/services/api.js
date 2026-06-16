@@ -1,6 +1,6 @@
 import axios from 'axios';
+import { getLastAnalysis, setLastAnalysis, normalizeAnalysis } from '../utils/lastAnalysis';
 
-// Use Vite proxy in dev (/api → localhost:3000). Set VITE_API_URL for production.
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
@@ -39,16 +39,28 @@ export async function uploadCV(file) {
     headers: { 'Content-Type': 'multipart/form-data' },
     timeout: 120000,
   });
+  if (data.success && data.data) {
+    setLastAnalysis(data.data);
+  }
   return data;
 }
 
-/** Career-aware chat */
+/** Latest CV analysis from server */
+export async function getLatestAnalysis() {
+  const { data } = await api.get('/analysis/latest');
+  if (data.success && data.data) {
+    setLastAnalysis(data.data);
+  }
+  return data;
+}
+
+/** Career-aware chat via ML service */
 export async function getChatResponse(message, career, context) {
   const { data } = await api.post('/analysis/chat', { message, career, context });
   return data;
 }
 
-/** Analysis history */
+/** All CV analyses */
 export async function getAnalysisHistory() {
   const { data } = await api.get('/analysis/history');
   return data;
@@ -72,7 +84,6 @@ export async function register(name, email, password) {
   return data;
 }
 
-// Legacy exports — keep existing dashboard working
 export const authAPI = {
   register: (payload) => api.post('/auth/register', payload),
   login: (payload) => api.post('/auth/login', payload),
@@ -104,20 +115,29 @@ export const evidenceAPI = {
 export const analysisAPI = {
   run: () => api.post('/analysis/run'),
   getById: (id) => api.get(`/analysis/${id}`),
-  getHistory: () => api.get('/analysis/history'),
+  getHistory: getAnalysisHistory,
+  getLatest: getLatestAnalysis,
   upload: uploadCV,
   chat: getChatResponse,
 };
 
 export const roadmapAPI = {
-  get: (careerName) => api.get(`/roadmap/${encodeURIComponent(careerName)}`),
+  get: async (careerName) => {
+    const { data } = await api.get(`/roadmap/${encodeURIComponent(careerName)}`);
+    return { data: data.data || data };
+  },
   download: (careerName) =>
     api.post('/roadmap/download', { careerName }, { responseType: 'blob' }),
 };
 
 export const chatAPI = {
-  sendMessage: (message, context) => api.post('/chat/message', { message, context }),
-  getHistory: () => api.get('/chat/history'),
+  sendMessage: (message, career, context) =>
+    api.post('/analysis/chat', { message, career, context }),
+  getHistory: async () => {
+    const { data } = await api.get('/chat/history');
+    return data;
+  },
 };
 
+export { getLastAnalysis, setLastAnalysis, normalizeAnalysis };
 export default api;

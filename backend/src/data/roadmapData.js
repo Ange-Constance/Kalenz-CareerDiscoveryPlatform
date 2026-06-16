@@ -1,14 +1,14 @@
-export { CAREER_NAMES, CAREER_DESCRIPTIONS } from './careers';
+/** Shared career taxonomy & roadmap content (mirrors frontend/src/data/roadmapData.js) */
 
-export const CAREER_ICONS = {
-  'Software Development': '💻',
-  'Data & AI': '📊',
-  'Cybersecurity & Networking': '🔒',
-  'Product & Project Management': '📋',
-  'UI/UX & Digital Design': '🎨',
-};
+const CAREER_NAMES = [
+  'Software Development',
+  'Data & AI',
+  'Cybersecurity & Networking',
+  'Product & Project Management',
+  'UI/UX & Digital Design',
+];
 
-export const ROADMAPS = {
+const ROADMAPS = {
   'Software Development': {
     phases: [
       {
@@ -166,8 +166,4 @@ export const ROADMAPS = {
   },
 };
 
-export const CHAT_STARTERS = [
-  'What skills should I learn first?',
-  'What companies hire for this role in Rwanda?',
-  'How do I build my portfolio?',
-];
+module.exports = { CAREER_NAMES, ROADMAPS };

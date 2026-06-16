@@ -1,3 +1,5 @@
+@import './styles/design-tokens.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -14,7 +16,8 @@
   }
 
   ::selection {
-    @apply bg-klenz-orange/30 text-white;
+    background: rgba(255, 140, 0, 0.35);
+    color: #ffffff;
   }
 
   h1, h2, h3 {
@@ -31,52 +34,157 @@
     @apply text-sm text-klenz-muted font-normal;
   }
 
-  .btn-orange,
-  .btn-purple {
-    @apply bg-orange-gradient text-white px-6 py-3 rounded-button font-semibold text-sm
-           hover:bg-orange-gradient-hover transition-all duration-200
-           shadow-lg shadow-klenz-orange/25;
+  .page-enter {
+    @apply animate-fade-in;
   }
 
-  .btn-teal {
-    @apply border border-klenz-border text-white px-6 py-3 rounded-button font-medium text-sm
-           hover:bg-klenz-elevated hover:border-klenz-muted transition-all duration-200;
+  .content-container {
+    @apply max-w-content mx-auto px-6;
+  }
+
+  .section-spacing {
+    @apply py-12 lg:py-20;
+  }
+
+  /* Buttons — orange primary */
+  .btn-primary {
+    @apply bg-orange-gradient text-white px-6 py-3 rounded-button font-semibold text-[15px]
+           hover:bg-orange-gradient-hover hover:-translate-y-px active:translate-y-0
+           transition-all duration-200 ease-out
+           shadow-[var(--shadow-orange)] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
+  }
+
+  .btn-secondary {
+    @apply bg-klenz-teal text-white px-6 py-3 rounded-button font-semibold text-[15px]
+           hover:bg-klenz-teal-hover hover:-translate-y-px active:translate-y-0
+           transition-all duration-200 ease-out
+           shadow-[var(--shadow-teal)] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
+  }
+
+  .btn-outline {
+    @apply bg-transparent border border-white/20 text-white px-6 py-3 rounded-button
+           font-semibold text-[15px] hover:border-white/50 hover:bg-white/5
+           hover:-translate-y-px active:translate-y-0 transition-all duration-200 ease-out;
   }
 
   .btn-ghost {
-    @apply border border-klenz-border text-white px-6 py-3 rounded-button font-medium text-sm
-           hover:bg-klenz-elevated hover:border-klenz-muted transition-all duration-200;
+    @apply bg-transparent border border-klenz-border text-klenz-muted px-6 py-3 rounded-button
+           font-medium text-sm hover:text-white hover:bg-white/5 hover:border-white/20
+           hover:-translate-y-px active:translate-y-0 transition-all duration-200 ease-out;
   }
 
   .btn-dark {
     @apply bg-klenz-elevated border border-klenz-border text-white px-5 py-2.5 rounded-button
-           font-medium text-sm hover:bg-klenz-card hover:border-klenz-muted transition-all duration-200;
+           font-medium text-sm hover:bg-klenz-surface hover:border-white/15
+           transition-all duration-200;
   }
 
+  .btn-warning {
+    @apply bg-klenz-warning/15 text-klenz-warning border border-klenz-warning/30 px-6 py-3
+           rounded-button font-semibold text-sm hover:bg-klenz-warning/25 transition-all duration-200;
+  }
+
+  .btn-orange {
+    @apply btn-primary;
+  }
+
+  /* Cards & panels */
+  .card,
   .panel {
-    @apply bg-klenz-card border border-klenz-border rounded-panel;
+    @apply bg-klenz-card border border-klenz-border rounded-panel p-4 md:p-6;
+    box-shadow: var(--shadow-card);
+  }
+
+  .card-orange,
+  .panel-orange,
+  .card-purple,
+  .panel-purple {
+    @apply bg-klenz-card border border-klenz-border-orange rounded-panel p-4 md:p-6;
+    box-shadow: var(--shadow-orange);
   }
 
   .panel-elevated {
     @apply bg-klenz-elevated border border-klenz-border rounded-panel;
+    box-shadow: var(--shadow-card);
+  }
+
+  .card-glow {
+    @apply shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)];
   }
 
   .input-dark {
-    @apply w-full px-4 py-3 bg-klenz-elevated border border-klenz-border rounded-button
-           text-white text-sm placeholder-klenz-muted focus:border-klenz-orange focus:ring-1
-           focus:ring-klenz-orange/40 outline-none transition-all;
+    @apply w-full px-4 py-3 bg-white/5 border border-white/10 rounded-button
+           text-white text-[15px] placeholder-klenz-subtle
+           focus:border-klenz-orange focus:ring-0 focus:shadow-[0_0_0_3px_rgba(255,140,0,0.15)]
+           outline-none transition-all duration-200;
   }
 
   .badge-orange {
-    @apply inline-block px-4 py-1.5 rounded-full text-xs font-medium
-           bg-klenz-orange/10 text-klenz-orange border border-klenz-orange/25;
+    @apply inline-block px-4 py-1.5 rounded-chip text-xs font-medium
+           bg-klenz-orange/15 text-klenz-orange border border-klenz-border-orange;
+  }
+
+  .badge-purple {
+    @apply badge-orange;
+  }
+
+  .badge-teal {
+    @apply inline-block px-4 py-1.5 rounded-chip text-xs font-medium
+           bg-klenz-teal/15 text-klenz-teal border border-klenz-teal/30;
+  }
+
+  .badge-warning {
+    @apply inline-block px-4 py-1.5 rounded-chip text-xs font-medium
+           bg-klenz-warning/15 text-klenz-warning border border-klenz-warning/30;
   }
 
   .text-gradient-orange {
     @apply bg-gradient-to-r from-klenz-orange to-klenz-orange-dark bg-clip-text text-transparent;
   }
 
-  .card-glow {
-    @apply shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)];
+  .text-gradient-purple {
+    @apply text-gradient-orange;
+  }
+
+  .text-gradient-teal {
+    @apply bg-gradient-to-r from-klenz-teal to-klenz-teal-hover bg-clip-text text-transparent;
+  }
+
+  .career-card-hover {
+    @apply transition-all duration-200 ease-out hover:-translate-y-1 hover:border-klenz-border-orange;
+    box-shadow: var(--shadow-card);
+  }
+
+  .career-card-hover:hover {
+    box-shadow: var(--shadow-orange);
+  }
+
+  .progress-bar {
+    @apply h-1.5 rounded-full bg-white/10 overflow-hidden;
+  }
+
+  .progress-bar-fill {
+    @apply h-full rounded-full bg-orange-gradient;
+    animation: barGrow 0.8s ease-out forwards;
+  }
+
+  .drop-zone {
+    @apply border-2 border-dashed border-white/15 rounded-panel transition-all duration-200;
+  }
+
+  .drop-zone-active {
+    @apply border-klenz-orange bg-klenz-orange/10;
+  }
+
+  .drop-zone-success {
+    @apply border-klenz-teal bg-klenz-teal/5 border-solid;
+  }
+
+  .chat-bubble-user {
+    @apply bg-orange-gradient text-white rounded-panel rounded-br-sm;
+  }
+
+  .chat-bubble-ai {
+    @apply bg-klenz-elevated text-klenz-muted border border-klenz-border rounded-panel rounded-bl-sm;
   }
 }

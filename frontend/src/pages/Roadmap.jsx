@@ -1,17 +1,12 @@
-import { useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import AppLayout from "../components/Layout/AppLayout";
 import { CAREER_ICONS, ROADMAPS } from "../data/roadmapData";
+import { getLastAnalysis } from "../utils/lastAnalysis";
 
 export default function Roadmap() {
   const location = useLocation();
 
-  const career = useMemo(() => {
-    if (location.state?.career) return location.state.career;
-    const saved = localStorage.getItem("lastAnalysis");
-    if (saved) return JSON.parse(saved).predicted_career;
-    return null;
-  }, [location.state]);
+  const career = location.state?.career || getLastAnalysis()?.predicted_career || null;
 
   const roadmap = career ? ROADMAPS[career] : null;
 
@@ -23,7 +18,7 @@ export default function Roadmap() {
           <p className="page-subtitle mb-6">
             Complete a CV analysis first to see your learning roadmap.
           </p>
-          <Link to="/upload" className="btn-orange">
+          <Link to="/upload" className="btn-primary">
             Upload CV
           </Link>
         </div>
@@ -33,7 +28,7 @@ export default function Roadmap() {
 
   return (
     <AppLayout>
-      <div className="max-w-3xl mx-auto">
+      <div className="w-full page-enter">
         <div className="flex items-center gap-4 mb-8">
           <span className="text-4xl">{CAREER_ICONS[career] || "🗺️"}</span>
           <div>
@@ -57,7 +52,7 @@ export default function Roadmap() {
               >
                 <div className="hidden sm:flex absolute left-3 top-6 w-4 h-4 rounded-full bg-klenz-orange border-2 border-klenz-black shadow-lg shadow-klenz-orange/30" />
 
-                <div className="panel p-6 hover:border-klenz-orange/25 transition-colors">
+                <div className="panel p-6 hover:border-klenz-border-orange transition-colors">
                   <h2 className="text-lg font-semibold text-white mb-1">
                     {phase.title}
                   </h2>
@@ -82,7 +77,7 @@ export default function Roadmap() {
                   </div>
 
                   <div>
-                    <p className="text-xs font-semibold text-klenz-orange uppercase tracking-wider mb-2">
+                    <p className="text-xs font-semibold text-klenz-teal uppercase tracking-wider mb-2">
                       Free Resources
                     </p>
                     <ul className="space-y-1">
@@ -92,7 +87,7 @@ export default function Roadmap() {
                             href={r.url}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-sm text-klenz-muted hover:text-klenz-orange hover:underline transition-colors"
+                            className="text-sm text-klenz-muted hover:text-klenz-teal hover:underline transition-colors"
                           >
                             {r.name} →
                           </a>
@@ -107,7 +102,7 @@ export default function Roadmap() {
         </div>
 
         <div className="mt-10 flex gap-4 justify-center">
-          <Link to="/dashboard/chat" className="btn-orange">
+          <Link to="/chat" className="btn-primary">
             Ask Career Assistant
           </Link>
           <Link to="/results" className="btn-ghost">

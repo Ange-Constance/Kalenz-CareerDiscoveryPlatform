@@ -1,126 +1,83 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
+import { CAREER_DESCRIPTIONS, CAREER_NAMES } from '../data/careers';
+import { CAREER_ICONS } from '../data/roadmapData';
+import { getLastAnalysis } from '../utils/lastAnalysis';
 
-const TAGS = {
-  "UX Research": ["remote-friendly", "high-growth", "creative"],
-  "Health Data": ["impact-driven", "high-demand", "analytical"],
-  Policy: ["research-focused", "government", "strategic"],
-  Backend: ["high-demand", "remote-friendly", "technical"],
-  DevOps: ["high-growth", "cloud", "automation"],
-};
-
-function CareerCard({
-  career,
-  probability,
-  description,
-  isTop,
-  isSelected,
-  onSelect,
-}) {
-  const pct = Math.round(probability * 100);
+function CareerCard({ career, score, isTop, index }) {
+  const pct = Math.round(score * 100);
 
   return (
-    <div
-      onClick={() => onSelect(career)}
-      className={`panel-elevated p-5 cursor-pointer transition-all hover:border-klenz-orange/30 ${
-        isSelected ? "border-klenz-orange ring-1 ring-klenz-orange/30" : ""
-      } ${isTop ? "border-klenz-orange/20" : ""}`}
+    <Link
+      to="/dashboard/roadmap"
+      className={`panel-elevated p-5 block transition-all hover:-translate-y-1 hover:border-klenz-border-orange ${
+        isTop ? 'border-klenz-border-orange ring-1 ring-klenz-orange/20' : ''
+      }`}
     >
-      {isTop && <span className="badge-orange text-xs mb-3">Top Match</span>}
+      {isTop && <span className="badge-purple text-xs mb-3 inline-block">Top Match</span>}
       <div className="flex justify-between items-start mb-3">
-        <h3 className="font-semibold">{career}</h3>
-        <span className="text-2xl font-bold text-gradient-orange">{pct}%</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xl">{CAREER_ICONS[career] || '🎯'}</span>
+          <h3 className="font-semibold text-sm">{career}</h3>
+        </div>
+        <span className="text-2xl font-bold text-gradient-purple">{pct}%</span>
       </div>
-      <div className="w-full bg-klenz-border rounded-full h-1.5 mb-4">
+      <div className="progress-bar mb-4">
         <div
-          className="bg-orange-gradient h-1.5 rounded-full transition-all"
-          style={{ width: `${pct}%` }}
+          className="progress-bar-fill"
+          style={{ '--bar-width': `${pct}%`, width: `${pct}%`, animationDelay: `${index * 100}ms` }}
         />
       </div>
-      <p className="text-klenz-muted text-sm mb-3 leading-relaxed">
-        {description}
+      <p className="text-klenz-muted text-sm leading-relaxed">
+        {CAREER_DESCRIPTIONS[career] || 'Career path match based on your CV.'}
       </p>
-      <div className="flex flex-wrap gap-1.5">
-        {(TAGS[career] || []).map((tag) => (
-          <span
-            key={tag}
-            className="text-xs bg-klenz-card text-klenz-muted px-2.5 py-1 rounded-full border border-klenz-border"
-          >
-            {tag}
-          </span>
-        ))}
-      </div>
-    </div>
+    </Link>
   );
 }
 
 export default function CareersPage() {
-  const [matches, setMatches] = useState([]);
-  const [selectedCareer, setSelectedCareer] = useState(null);
+  const analysis = getLastAnalysis();
 
-  useEffect(() => {
-    const saved = localStorage.getItem("latestAnalysis");
-    if (saved) {
-      const analysis = JSON.parse(saved);
-      setMatches(analysis.career_matches || []);
-      if (analysis.career_matches?.[0]) {
-        setSelectedCareer(analysis.career_matches[0].career);
-        localStorage.setItem(
-          "selectedCareer",
-          analysis.career_matches[0].career,
-        );
-      }
-    }
-  }, []);
-
-  const handleSelect = (career) => {
-    setSelectedCareer(career);
-    localStorage.setItem("selectedCareer", career);
-  };
-
-  if (matches.length === 0) {
+  if (!analysis?.confidence_scores) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div className="flex flex-col items-center justify-center py-20 text-center page-enter">
         <h1 className="page-title mb-2">Career Matches</h1>
         <p className="page-subtitle mb-8 max-w-md">
-          Complete your talent profile first to see ML-ranked career matches.
+          Upload and analyze your CV first to see ML-ranked career matches.
         </p>
-        <Link to="/dashboard/profile" className="btn-orange">
-          Go to Profile
+        <Link to="/upload" className="btn-primary">
+          Upload CV
         </Link>
       </div>
     );
   }
 
+  const sorted = CAREER_NAMES.map((career) => ({
+    career,
+    score: analysis.confidence_scores[career] || 0,
+  })).sort((a, b) => b.score - a.score);
+
+  const topCareer = analysis.predicted_career || sorted[0]?.career;
+
   return (
-    <div>
+    <div className="page-enter">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
         <div>
           <h1 className="page-title mb-1.5">Career Matches</h1>
-          <p className="page-subtitle">
-            Ranked by probability based on your evidence
-          </p>
+          <p className="page-subtitle">Ranked by probability based on your CV</p>
         </div>
-        {selectedCareer && (
-          <Link
-            to="/dashboard/roadmap"
-            className="btn-orange text-sm self-start"
-          >
-            View Roadmap →
-          </Link>
-        )}
+        <Link to="/dashboard/roadmap" className="btn-secondary text-sm self-start">
+          View Roadmap →
+        </Link>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        {matches.map((match, i) => (
+      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
+        {sorted.map(({ career, score }, index) => (
           <CareerCard
-            key={match.career}
-            career={match.career}
-            probability={match.probability}
-            description={match.description}
-            isTop={i === 0}
-            isSelected={selectedCareer === match.career}
-            onSelect={handleSelect}
+            key={career}
+            career={career}
+            score={score}
+            isTop={career === topCareer}
+            index={index}
           />
         ))}
       </div>

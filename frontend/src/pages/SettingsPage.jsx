@@ -4,7 +4,7 @@ export default function SettingsPage() {
   const { user, logout } = useAuth();
 
   return (
-    <div className="max-w-2xl">
+    <div className="w-full">
       <h1 className="page-title mb-1.5">Settings</h1>
       <p className="page-subtitle mb-8">Manage your account and preferences</p>
 

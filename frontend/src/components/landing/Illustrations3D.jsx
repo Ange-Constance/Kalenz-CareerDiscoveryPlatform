@@ -1,9 +1,9 @@
 const CAREERS = [
-  { name: 'Backend', pct: 45, highlight: true },
-  { name: 'DevOps', pct: 35 },
-  { name: 'UX Research', pct: 12 },
-  { name: 'Health Data', pct: 5 },
-  { name: 'Policy', pct: 3 },
+  { name: 'Software Development', pct: 45, highlight: true },
+  { name: 'Data & AI', pct: 28 },
+  { name: 'Cybersecurity', pct: 12 },
+  { name: 'Product Mgmt', pct: 10 },
+  { name: 'UI/UX Design', pct: 5 },
 ];
 
 const COMPETENCIES = [
@@ -41,11 +41,11 @@ export function CareerPathHero({ className = '' }) {
 
         {/* Career nodes */}
         {[
-          { x: 60, y: 100, label: 'Policy', pct: '3%' },
-          { x: 110, y: 80, label: 'UX', pct: '12%' },
-          { x: 160, y: 70, label: 'Backend', pct: '45%', active: true },
-          { x: 210, y: 80, label: 'DevOps', pct: '35%' },
-          { x: 260, y: 100, label: 'Health', pct: '5%' },
+          { x: 60, y: 100, label: 'UI/UX', pct: '5%' },
+          { x: 110, y: 80, label: 'Product', pct: '10%' },
+          { x: 160, y: 70, label: 'Software', pct: '45%', active: true },
+          { x: 210, y: 80, label: 'Cyber', pct: '12%' },
+          { x: 260, y: 100, label: 'Data/AI', pct: '28%' },
         ].map(({ x, y, label, pct, active }) => (
           <g key={label}>
             <circle
@@ -216,7 +216,7 @@ export function RoadmapTimeline({ className = '' }) {
           <div key={label} className="roadmap-week">
             <div className="roadmap-week-dot" />
             <div>
-              <p className="text-[10px] text-klenz-orange font-semibold">Week {label}</p>
+              <p className="text-[10px] text-klenz-teal font-semibold">Week {label}</p>
               <p className="text-xs text-white font-medium">{title}</p>
             </div>
           </div>
@@ -239,7 +239,7 @@ export function HeroBackground() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <div className="hero-orb w-[500px] h-[500px] bg-klenz-orange/15 top-[-10%] right-[-5%] animate-pulse-glow" />
-      <div className="hero-orb w-[400px] h-[400px] bg-klenz-orange/8 bottom-[20%] left-[-10%] animate-pulse-glow" style={{ animationDelay: '2s' }} />
+      <div className="hero-orb w-[400px] h-[400px] bg-klenz-teal/10 bottom-[20%] left-[-10%] animate-pulse-glow" style={{ animationDelay: '2s' }} />
       <div className="absolute inset-0 bg-hero-glow" />
       <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-20" />
     </div>

@@ -149,9 +149,6 @@ def analyze():
         # Extract text from uploaded file
         raw_text = extract_text_from_file(tmp_path)
 
-        if not raw_text or len(raw_text.strip()) < 50:
-            raise ValueError("No readable text found in the uploaded file")
-
         # Run ML prediction — returns a dict
         result = predict(raw_text)
         predicted_career = result["predicted_career"]
