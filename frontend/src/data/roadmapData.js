@@ -1,10 +1,18 @@
 export { CAREER_NAMES, CAREER_DESCRIPTIONS } from './careers';
 
 export const CAREER_ICONS = {
+  'Backend Development': '⚙️',
+  'Frontend Development': '🖥️',
+  'AI/ML Development': '🤖',
+  'UI/UX Design': '🎨',
+  'DevOps/Cloud': '☁️',
+  'Data Engineering': '📊',
+  Cybersecurity: '🔒',
+  'Mobile Development': '📱',
+  'Product/Project Management': '📋',
   'Software Development': '💻',
   'Data & AI': '📊',
   'Cybersecurity & Networking': '🔒',
-  'Product & Project Management': '📋',
   'UI/UX & Digital Design': '🎨',
 };
 

@@ -9,7 +9,12 @@ const router = express.Router();
 
 function generateToken(user) {
   return jwt.sign(
-    { id: user.id, email: user.email, name: formatUser(user).name },
+    {
+      id: user.id,
+      email: user.email,
+      name: formatUser(user).name,
+      is_admin: Boolean(user.is_admin),
+    },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
   );
@@ -25,6 +30,7 @@ function formatUser(row) {
     lastName: row.last_name,
     githubUsername: row.github_username,
     location: row.location,
+    is_admin: Boolean(row.is_admin),
     createdAt: row.created_at,
   };
 }
@@ -55,11 +61,13 @@ router.post(
       const parts = (name || '').trim().split(' ');
       const fName = firstName || parts[0] || null;
       const lName = lastName || parts.slice(1).join(' ') || null;
+      const adminEmail = process.env.ADMIN_EMAIL || 'angeconstance400@gmail.com';
+      const isAdminUser = email === adminEmail;
 
       const result = await db.query(
-        `INSERT INTO users (email, password_hash, first_name, last_name)
-         VALUES ($1, $2, $3, $4) RETURNING *`,
-        [email, passwordHash, fName, lName]
+        `INSERT INTO users (email, password_hash, first_name, last_name, is_admin)
+         VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+        [email, passwordHash, fName, lName, isAdminUser]
       );
 
       const user = formatUser(result.rows[0]);

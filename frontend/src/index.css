@@ -1,4 +1,4 @@
-@import './styles/design-tokens.css';
+@import "./styles/design-tokens.css";
 
 @tailwind base;
 @tailwind components;
@@ -20,7 +20,9 @@
     color: #ffffff;
   }
 
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
     @apply tracking-tight;
   }
 }

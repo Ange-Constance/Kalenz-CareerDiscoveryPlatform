@@ -30,12 +30,20 @@ export default function DashboardLayout() {
     navigate("/login");
   };
 
+  const initials = (user?.name || user?.email || '?')
+    .split(' ')
+    .map((p) => p[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+
   return (
     <SidebarShell
       logoTo="/dashboard/upload"
       navItems={navItems}
       onLogout={handleLogout}
       userLabel={user?.name || user?.email}
+      userInitials={initials}
       mainScrollable={!isChatRoute}
     >
       <Outlet />

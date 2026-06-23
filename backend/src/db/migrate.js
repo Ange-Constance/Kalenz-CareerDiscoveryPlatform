@@ -4,16 +4,37 @@ const path = require('path');
 const { Client } = require('pg');
 const { pool } = require('../config/db');
 
+function isHostedDatabase(dbUrl) {
+  return /supabase\.(co|com)|railway\.app|render\.com|neon\.tech|aws\.amazonaws\.com/i.test(
+    dbUrl
+  );
+}
+
+function sslConfig(dbUrl) {
+  if (process.env.NODE_ENV === 'production' || isHostedDatabase(dbUrl)) {
+    return { rejectUnauthorized: false };
+  }
+  return false;
+}
+
 async function ensureDatabase() {
   const dbUrl = process.env.DATABASE_URL;
   if (!dbUrl) throw new Error('DATABASE_URL is not set in .env');
+
+  if (isHostedDatabase(dbUrl)) {
+    console.log('Using hosted PostgreSQL — skipping local database creation.');
+    return;
+  }
 
   const match = dbUrl.match(/\/([^/?]+)(\?|$)/);
   const dbName = match?.[1];
   if (!dbName) throw new Error('Could not parse database name from DATABASE_URL');
 
   const adminUrl = dbUrl.replace(`/${dbName}`, '/postgres');
-  const client = new Client({ connectionString: adminUrl });
+  const client = new Client({
+    connectionString: adminUrl,
+    ssl: sslConfig(dbUrl),
+  });
 
   await client.connect();
   const exists = await client.query('SELECT 1 FROM pg_database WHERE datname = $1', [dbName]);

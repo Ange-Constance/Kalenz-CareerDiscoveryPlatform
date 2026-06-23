@@ -120,7 +120,7 @@ export default function SignupPage() {
               className="btn-primary w-full flex justify-center items-center gap-2"
             >
               {loading && <LoadingSpinner size="sm" />}
-              {loading ? "Creating account..." : "Get Started Free"}
+              {loading ? "Creating account..." : "Get Started"}
             </button>
           </form>
 

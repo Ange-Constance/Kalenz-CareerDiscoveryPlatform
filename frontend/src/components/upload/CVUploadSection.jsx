@@ -25,8 +25,8 @@ export default function CVUploadSection({ compact = false, onSuccess, showResult
       setError('Only .pdf and .docx files are allowed');
       return false;
     }
-    if (f.size > 5 * 1024 * 1024) {
-      setError('File must be under 5MB');
+    if (f.size > 10 * 1024 * 1024) {
+      setError('File must be under 10MB');
       return false;
     }
     setError('');
@@ -83,7 +83,7 @@ export default function CVUploadSection({ compact = false, onSuccess, showResult
         <>
           <h2 className="text-lg font-semibold text-white mb-1">Analyze Your CV</h2>
           <p className="page-subtitle mb-4">
-            Upload a PDF or Word document (.docx). Max 5MB. We analyze skills and discard the file.
+            Upload a PDF or Word document (.docx). Max 10MB. We analyze skills and discard the file.
           </p>
         </>
       )}

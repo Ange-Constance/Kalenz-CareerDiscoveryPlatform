@@ -127,6 +127,16 @@ export function UploadIcon({ className = "w-5 h-5", active = false }) {
   );
 }
 
+export function HistoryIcon({ className = "w-5 h-5", active = false }) {
+  const color = active ? "#FF8C00" : "currentColor";
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5">
+      <path d="M4 6h16M4 12h10M4 18h14" strokeLinecap="round" />
+      <circle cx="19" cy="12" r="2" />
+    </svg>
+  );
+}
+
 export function ChevronDown({ className = "w-4 h-4" }) {
   return (
     <svg

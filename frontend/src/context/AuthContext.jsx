@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { authAPI } from '../services/api';
+import { authAPI, getLatestAnalysis } from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -12,25 +12,30 @@ export function AuthProvider({ children }) {
     const savedUser = localStorage.getItem('user');
     if (token && savedUser) {
       setUser(JSON.parse(savedUser));
+      getLatestAnalysis().catch(() => {});
     }
     setLoading(false);
   }, []);
 
+  const persistUser = (userData, token) => {
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
+  };
+
   const login = async (email, password) => {
     const { data } = await authAPI.login({ email, password });
     if (data.success === false) throw new Error(data.error);
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    setUser(data.user);
+    persistUser(data.user, data.token);
+    await getLatestAnalysis().catch(() => {});
     return data;
   };
 
   const register = async (formData) => {
     const { data } = await authAPI.register(formData);
     if (data.success === false) throw new Error(data.error);
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    setUser(data.user);
+    persistUser(data.user, data.token);
+    await getLatestAnalysis().catch(() => {});
     return data;
   };
 

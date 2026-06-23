@@ -11,6 +11,7 @@ const evidenceRoutes = require('./routes/evidence');
 const analysisRoutes = require('./routes/analysis');
 const roadmapRoutes = require('./routes/roadmap');
 const chatRoutes = require('./routes/chat');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,6 +36,7 @@ app.use('/api/evidence', evidenceRoutes);
 app.use('/api/analysis', analysisRoutes);
 app.use('/api/roadmap', roadmapRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.use(errorHandler);
 

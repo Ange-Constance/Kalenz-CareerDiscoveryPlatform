@@ -2,10 +2,12 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import DashboardLayout from "./components/Layout/DashboardLayout";
 import LoadingSpinner from "./components/common/LoadingSpinner";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import AdminDashboard from "./pages/AdminDashboard";
 import CareersPage from "./pages/CareersPage";
 import Chat from "./pages/Chat";
 import ChatPage from "./pages/ChatPage";
 import DashboardPage from "./pages/DashboardPage";
+import History from "./pages/History";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -32,6 +34,22 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+function AdminRoute({ children }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-klenz-black flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (!user) return <Navigate to="/login" replace />;
+  if (!user.is_admin) return <Navigate to="/upload" replace />;
+  return children;
+}
+
 function AppRoutes() {
   return (
     <Routes>
@@ -39,7 +57,6 @@ function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
 
-      {/* New CV analysis flow */}
       <Route
         path="/upload"
         element={
@@ -72,8 +89,23 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/history"
+        element={
+          <ProtectedRoute>
+            <History />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
+            <AdminDashboard />
+          </AdminRoute>
+        }
+      />
 
-      {/* Legacy dashboard — kept intact */}
       <Route
         path="/dashboard"
         element={

@@ -1,22 +1,53 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { CHAT_STARTERS } from '../../data/roadmapData';
-import { chatAPI, getChatResponse } from '../../services/api';
+import { chatAPI, getAnalysisChatHistory, getChatResponse } from '../../services/api';
 import { getLastAnalysis } from '../../utils/lastAnalysis';
 
-const WELCOME =
-  "Hi! I'm your Career Assistant. Upload your CV and I'll help you discover your ideal tech career path.";
+function formatMessageDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+function formatMessageTime(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+}
+
+function groupMessagesByDate(messages) {
+  const groups = [];
+  let currentDate = null;
+
+  for (const msg of messages) {
+    const dateKey = msg.created_at
+      ? new Date(msg.created_at).toDateString()
+      : 'Today';
+    if (dateKey !== currentDate) {
+      currentDate = dateKey;
+      groups.push({ type: 'date', label: msg.created_at ? formatMessageDate(msg.created_at) : 'Today' });
+    }
+    groups.push({ type: 'message', ...msg });
+  }
+  return groups;
+}
 
 export default function CareerAssistant({ variant = 'dashboard' }) {
-  const [messages, setMessages] = useState([{ role: 'assistant', content: WELCOME }]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
   const messagesRef = useRef(null);
   const autoScrollRef = useRef(false);
   const location = useLocation();
 
-  const analysis = useMemo(() => getLastAnalysis(), []);
+  const analysis = useMemo(
+    () => location.state?.analysis || getLastAnalysis(),
+    [location.state]
+  );
+
   const career = analysis?.predicted_career || '';
+  const analysisId = analysis?.id;
   const confidence = analysis?.confidence_pct
     ? `${Math.round(analysis.confidence_pct)}%`
     : analysis?.confidence_scores?.[career]
@@ -39,18 +70,42 @@ export default function CareerAssistant({ variant = 'dashboard' }) {
   };
 
   useEffect(() => {
-    if (variant !== 'dashboard') return;
+    if (variant === 'dashboard') {
+      chatAPI
+        .getHistory()
+        .then((result) => {
+            const rows = result.data || [];
+            if (rows.length > 0) {
+              setMessages(rows.map((m) => ({
+                role: m.role,
+                content: m.content,
+                created_at: m.created_at,
+              })));
+            }
+          setHistoryLoaded(true);
+        })
+        .catch(() => setHistoryLoaded(true));
+      return;
+    }
 
-    chatAPI
-      .getHistory()
-      .then((result) => {
-        const rows = result.data || [];
-        if (rows.length > 0) {
-          setMessages(rows.map((m) => ({ role: m.role, content: m.content })));
-        }
-      })
-      .catch(() => {});
-  }, [variant]);
+    if (analysisId) {
+      getAnalysisChatHistory(analysisId)
+        .then((result) => {
+          const rows = result.data || [];
+          if (rows.length > 0) {
+            setMessages(rows.map((m) => ({
+              role: m.role,
+              content: m.content,
+              created_at: m.created_at,
+            })));
+          }
+          setHistoryLoaded(true);
+        })
+        .catch(() => setHistoryLoaded(true));
+    } else {
+      setHistoryLoaded(true);
+    }
+  }, [variant, analysisId]);
 
   useEffect(() => {
     if (!autoScrollRef.current) return;
@@ -63,7 +118,8 @@ export default function CareerAssistant({ variant = 'dashboard' }) {
 
     autoScrollRef.current = true;
     setInput('');
-    setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
+    const now = new Date().toISOString();
+    setMessages((prev) => [...prev, { role: 'user', content: userMessage, created_at: now }]);
     setLoading(true);
 
     try {
@@ -74,19 +130,33 @@ export default function CareerAssistant({ variant = 'dashboard' }) {
             ? `Predicted career: ${career}${confidence ? ` (${confidence} confidence)` : ''}. User is exploring next steps in Rwanda tech.`
             : 'User is exploring career paths in Rwanda tech.';
 
-      const result = await getChatResponse(userMessage, career, context);
+      const chatHistory = messages.slice(-10).map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
+
+      const result = await getChatResponse(userMessage, career, context, {
+        analysisId: variant === 'standalone' ? analysisId : undefined,
+        cvSummary: analysis?.narrative?.slice(0, 500),
+        chatHistory,
+      });
+
       const reply =
         result.data?.response ||
         result.response ||
         'Sorry, I could not generate a response.';
 
-      setMessages((prev) => [...prev, { role: 'assistant', content: reply }]);
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: reply, created_at: new Date().toISOString() },
+      ]);
     } catch {
       setMessages((prev) => [
         ...prev,
         {
           role: 'assistant',
           content: 'Sorry, I had trouble responding. Please try again.',
+          created_at: new Date().toISOString(),
         },
       ]);
     } finally {
@@ -94,7 +164,9 @@ export default function CareerAssistant({ variant = 'dashboard' }) {
     }
   };
 
-  const showStarters = messages.length === 1 && messages[0]?.role === 'assistant';
+  const showStarters = historyLoaded && messages.length === 0;
+
+  const grouped = groupMessagesByDate(messages);
 
   return (
     <div className="flex flex-col flex-1 min-h-0 w-full page-enter">
@@ -138,22 +210,33 @@ export default function CareerAssistant({ variant = 'dashboard' }) {
             </div>
           )}
 
-          {messages.map((msg, i) => (
-            <div
-              key={i}
-              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-slide-up`}
-            >
-              <div
-                className={`max-w-[85%] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap break-words ${
-                  msg.role === 'user'
-                    ? 'chat-bubble-user'
-                    : 'chat-bubble-ai'
-                }`}
-              >
-                {msg.content}
+          {grouped.map((item, i) =>
+            item.type === 'date' ? (
+              <div key={`date-${i}`} className="text-center">
+                <span className="text-xs text-klenz-subtle bg-klenz-elevated px-3 py-1 rounded-full">
+                  {item.label}
+                </span>
               </div>
-            </div>
-          ))}
+            ) : (
+              <div
+                key={`msg-${i}`}
+                className={`flex flex-col ${item.role === 'user' ? 'items-end' : 'items-start'} animate-slide-up`}
+              >
+                <div
+                  className={`max-w-[85%] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap break-words ${
+                    item.role === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'
+                  }`}
+                >
+                  {item.content}
+                </div>
+                {item.created_at && (
+                  <span className="text-[10px] text-klenz-subtle mt-1 px-1">
+                    {formatMessageTime(item.created_at)}
+                  </span>
+                )}
+              </div>
+            )
+          )}
 
           {loading && (
             <div className="flex justify-start animate-slide-up">
