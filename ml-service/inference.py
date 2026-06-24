@@ -275,23 +275,54 @@ def clean_text(text):
 
 def load_model():
     global _classifier
+
+    model_path = os.path.join(
+        os.path.dirname(__file__),
+        'models', 'karrelenz-distilbert'
+    )
+
+    # Check if valid model exists locally
+    config_path = os.path.join(model_path, 'config.json')
+    model_file = os.path.join(model_path, 'model.safetensors')
+
+    model_valid = (
+        os.path.exists(config_path) and
+        os.path.exists(model_file) and
+        os.path.getsize(model_file) > 100_000_000  # > 100MB
+    )
+
+    if not model_valid:
+        print('⬇️ Downloading model from HuggingFace Hub...')
+        try:
+            from huggingface_hub import snapshot_download
+            snapshot_download(
+                repo_id=os.environ.get(
+                    'HF_MODEL_ID',
+                    'AngeConstance/karrelenz-career-classifier'
+                ),
+                token=os.environ.get('HF_TOKEN'),
+                local_dir=model_path,
+                ignore_patterns=['*.msgpack', '*.h5', 'flax_model*']
+            )
+            print('✅ Model downloaded successfully!')
+        except Exception as e:
+            print(f'❌ Download failed: {e}')
+            raise
+
     try:
-        model_path = os.path.join(
-            os.path.dirname(__file__),
-            "models",
-            "karrelenz-distilbert",
-        )
+        from transformers import pipeline
         _classifier = pipeline(
-            "text-classification",
+            'text-classification',
             model=model_path,
             top_k=None,
             truncation=True,
-            max_length=512,
+            max_length=512
         )
-        print(f"✅ Model loaded from {model_path}")
+        print('✅ Model loaded successfully!')
         return True
     except Exception as e:
-        print(f"❌ Model load failed: {e}")
+        print(f'❌ Model load failed: {e}')
+        _classifier = None
         return False
 
 
