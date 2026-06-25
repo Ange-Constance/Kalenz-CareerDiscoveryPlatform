@@ -370,5 +370,12 @@ def chat():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     print(f"[app] Starting ML service on port {port}")
-    load_model()
+    # Load the model best-effort. If it fails (e.g. transient HF Hub error),
+    # do NOT crash the process — the server must still bind the port so the
+    # platform health check passes. The model is loaded lazily on first
+    # request and via /health, so it can recover without a redeploy.
+    try:
+        load_model()
+    except Exception as err:
+        print(f"[app] Model preload failed (will retry lazily): {err}")
     app.run(host="0.0.0.0", port=port, debug=False)

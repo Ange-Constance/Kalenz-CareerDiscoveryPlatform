@@ -298,9 +298,9 @@ def load_model():
             snapshot_download(
                 repo_id=os.environ.get(
                     'HF_MODEL_ID',
-                    'AngeConstance/karrelenz-career-classifier'
+                    'Ange-Constance/karrelenz-career-classifier'
                 ),
-                token=os.environ.get('HF_TOKEN'),
+                token=os.environ.get('HF_TOKEN') or None,
                 local_dir=model_path,
                 ignore_patterns=['*.msgpack', '*.h5', 'flax_model*']
             )
