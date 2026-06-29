@@ -295,12 +295,14 @@ def load_model():
         print('⬇️ Downloading model from HuggingFace Hub...')
         try:
             from huggingface_hub import snapshot_download
+            hf_token = os.environ.get('HF_TOKEN', '').strip() or None
+            hf_model_id = os.environ.get(
+                'HF_MODEL_ID',
+                'Ange-Constance/karrelenz-career-classifier'
+            ).strip()
             snapshot_download(
-                repo_id=os.environ.get(
-                    'HF_MODEL_ID',
-                    'Ange-Constance/karrelenz-career-classifier'
-                ),
-                token=os.environ.get('HF_TOKEN') or None,
+                repo_id=hf_model_id,
+                token=hf_token,
                 local_dir=model_path,
                 ignore_patterns=['*.msgpack', '*.h5', 'flax_model*']
             )

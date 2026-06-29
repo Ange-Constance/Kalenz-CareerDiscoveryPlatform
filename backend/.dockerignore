@@ -1,0 +1,11 @@
+node_modules/
+.venv/
+venv/
+.env
+.env.*
+uploads/
+*.log
+.git/
+.gitignore
+*.md
+.DS_Store
